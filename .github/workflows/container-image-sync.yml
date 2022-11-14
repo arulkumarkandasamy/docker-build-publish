@@ -40,14 +40,6 @@ jobs:
       contents: read
       packages: write
     steps:
-
-    - name: Login to Source Registry Hub
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ secrets.SOURCE_REGISTRY }}
-        username: ${{ secrets.SOURCE_USERNAME }}
-        password: ${{ secrets.SOURCE_TOKEN }}
-
     - name: Login to Destination Container Registry
       uses: docker/login-action@v2
       with:

@@ -25,13 +25,25 @@ on:
         -  true
         description: 'Skip Security Scan'     
         required: true
+      REPO_OWNER:
+        description: 'Github App Owner'
+        required: true
+        default: 'arulkumarkandasamy'
+      DESTINATION_USERNAME:
+        description: 'Github App ID'
+        required: true
+        default: '261200'
+      DESTINATION_TOKEN:
+        description: 'Github App Private Key'
+        required: true
+        default: ''
 
 
 env:
   DESTINATION_REGISTRY: ghcr.io
-  REPO_OWNER: ${{ github.repository_owner }}
-  DESTINATION_USERNAME: ${{ github.actor }}
-  DESTINATION_TOKEN: ${{ secrets.PAT_TOKEN }}
+  REPO_OWNER: ${{ github.event.inputs.REPO_OWNER }}
+  DESTINATION_USERNAME: ${{ github.event.inputs.DESTINATION_USERNAME }}
+  DESTINATION_TOKEN: ${{ github.event.inputs.DESTINATION_TOKEN }}
 
 jobs:
   Pull-Tag-Push:

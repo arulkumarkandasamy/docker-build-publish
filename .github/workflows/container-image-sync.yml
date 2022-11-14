@@ -1,0 +1,95 @@
+# Secrets to be set within Github Action Secrets
+# env:
+#   SOURCE_REGISTRY: Your Source Registry Host (example: docker.io)
+#   SOURCE_USERNAME: Your Container Registry Username 
+#   SOURCE_TOKEN: Your Container Registry Password
+
+
+name: Sync Image
+
+on: 
+  workflow_dispatch:
+    inputs:
+      source_image:
+        description: 'Input Source Image'     
+        required: true
+        default: 'hello-world'
+      tag:
+        description: 'Input Tag'     
+        required: true
+        default: 'latest'
+      scan:
+        type: choice
+        options: 
+        -  false 
+        -  true
+        description: 'Skip Security Scan'     
+        required: true
+
+
+env:
+  DESTINATION_REGISTRY: ghcr.io
+  REPO_OWNER: ${{ github.repository_owner }}
+  DESTINATION_USERNAME: ${{ github.actor }}
+  DESTINATION_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  Pull-Tag-Push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+
+    - name: Login to Source Registry Hub
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ secrets.SOURCE_REGISTRY }}
+        username: ${{ secrets.SOURCE_USERNAME }}
+        password: ${{ secrets.SOURCE_TOKEN }}
+
+    - name: Login to Destination Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.DESTINATION_REGISTRY }}
+        username: ${{ env.DESTINATION_USERNAME }}
+        password: ${{ env.DESTINATION_TOKEN }}
+    
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v4.1.1
+      with:
+        images: ${{ env.DESTINATION_REGISTRY }}/${{ env.REPO_OWNER }}/${{ github.event.inputs.source_image }}
+        tags: |
+          type=raw,value=${{ github.event.inputs.tag }}
+
+    - name: Run Trivy vulnerability scanner with image command
+      uses: aquasecurity/trivy-action@master
+      if: github.event.inputs.scan == 'false'
+      with:
+        image-ref: ${{ github.event.inputs.source_image }}:${{ github.event.inputs.tag }}
+        security-checks: 'vuln,secret,config'
+        format: 'table'
+        ignore-unfixed: true
+        severity: 'HIGH,CRITICAL'
+        exit-code: 1
+
+    - name: Pull Image
+      run: |
+        docker pull ${{ github.event.inputs.source_image }}:${{ github.event.inputs.tag }}
+
+    - name: Tag Pulled Image
+      run: |
+        docker tag ${{ github.event.inputs.source_image }}:${{ github.event.inputs.tag }} ${{ steps.meta.outputs.tags }}
+    
+    - name: Push Image to Destination
+      run: |
+        docker push ${{ steps.meta.outputs.tags }}
+
+
+
+
+
+
+
+  

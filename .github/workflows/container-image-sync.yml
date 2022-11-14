@@ -31,7 +31,7 @@ env:
   DESTINATION_REGISTRY: ghcr.io
   REPO_OWNER: ${{ github.repository_owner }}
   DESTINATION_USERNAME: ${{ github.actor }}
-  DESTINATION_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  DESTINATION_TOKEN: ${{ secrets.PAT_TOKEN }}
 
 jobs:
   Pull-Tag-Push:

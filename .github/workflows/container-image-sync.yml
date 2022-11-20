@@ -33,17 +33,17 @@ on:
         description: 'Github App ID'
         required: true
         default: '261200'
-      DESTINATION_TOKEN:
-        description: 'Github App Private Key'
-        required: true
-        default: ''
+      # DESTINATION_TOKEN:
+      #   description: 'Github App Private Key'
+      #   required: true
+      #   default: ''
 
 
 env:
   DESTINATION_REGISTRY: ghcr.io
   REPO_OWNER: ${{ github.event.inputs.REPO_OWNER }}
   DESTINATION_USERNAME: ${{ github.event.inputs.DESTINATION_USERNAME }}
-  DESTINATION_TOKEN: ${{ github.event.inputs.DESTINATION_TOKEN }}
+  # DESTINATION_TOKEN: ${{ github.event.inputs.DESTINATION_TOKEN }}
 
 jobs:
   Pull-Tag-Push:
@@ -57,7 +57,7 @@ jobs:
       uses: tibdex/github-app-token@v1
       with:
         app_id: ${{ env.DESTINATION_USERNAME }}
-        private_key: ${{ env.DESTINATION_TOKEN }}
+        private_key: ${{ secrets.PRIVATE_KEY }}
 
     - name: Use token
       env:

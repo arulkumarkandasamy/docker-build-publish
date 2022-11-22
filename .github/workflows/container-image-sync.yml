@@ -70,7 +70,7 @@ jobs:
       with:
         registry: ${{ env.DESTINATION_REGISTRY }}
         username: ${{ env.DESTINATION_USERNAME }}
-        password: ${{ secrets.PAT_TOKEN }}
+        password: ${TOKEN}
     
     - name: Extract metadata (tags, labels) for Docker
       id: meta
